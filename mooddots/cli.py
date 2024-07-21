@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 
 from .storage import Storage, MoodEntry
+from .export import export_csv, export_json
 
 
 def cmd_add(args: argparse.Namespace) -> int:
@@ -50,6 +51,18 @@ def build_parser() -> argparse.ArgumentParser:
     s = sub.add_parser("show", help="Show recent moods")
     s.set_defaults(func=cmd_show)
 
+    e = sub.add_parser("export", help="Export entries")
+    e.add_argument("--format", choices=["csv", "json"], default="csv")
+    def _run(args: argparse.Namespace) -> int:
+        root = Path.cwd()
+        if args.format == "csv":
+            path = export_csv(root)
+        else:
+            path = export_json(root)
+        print(path)
+        return 0
+    e.set_defaults(func=_run)
+
     return p
 
 
@@ -61,4 +74,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
